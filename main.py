@@ -141,8 +141,8 @@ def main() -> None:
         df_st_relevant["scores"] = scores_list_all
         if total_comments !=0:
             happiness_index = happiness_index / total_comments
-        positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0 and df_st_relevant[df_st_relevant['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]].sort_values('scores', False)
-        negative_vibes = df_st_relevant[df_st_relevant['scores'] < 0 and df_st_relevant[df_st_relevant['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]].sort_values('scores', False)
+        positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0 & df_st_relevant[df_st_relevant['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]].sort_values('scores', False)
+        negative_vibes = df_st_relevant[df_st_relevant['scores'] < 0 & df_st_relevant[df_st_relevant['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]].sort_values('scores', False)
         s.enter(10800, 1, scrape_data)
 
     scrape_data()
