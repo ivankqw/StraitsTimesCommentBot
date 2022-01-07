@@ -101,8 +101,6 @@ pyquery==1.4.3
 python-dateutil==2.8.1
 python-telegram-bot==13.1
 pytz==2020.1
-pywin32==302
-pywin32-ctypes==0.2.0
 PyYAML==5.3.1
 pyzmq==22.3.0
 queuelib==1.6.2
