@@ -93,7 +93,7 @@ def main() -> None:
         page_name = 'TheStraitsTimes'
         df_list=[]
         for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
-                              pages=4, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False, "posts_per_page": 15}):
+                              pages=4, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False}):
             post_entry = post
             #fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
             #fb_post_df = fb_post_df.transpose()
@@ -140,8 +140,8 @@ def main() -> None:
         df_st_relevant["scores"] = scores_list_all
         if total_comments !=0:
             happiness_index = happiness_index / total_comments
-        positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0].sort_values('scores', False)
-        negative_vibes = df_st_relevant[df_st_relevant['scores'] < 0].sort_values('scores', False)
+        positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0 and df_st_relevant[df_st_relevant['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]].sort_values('scores', False)
+        negative_vibes = df_st_relevant[df_st_relevant['scores'] < 0 and df_st_relevant[df_st_relevant['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]].sort_values('scores', False)
         s.enter(10800, 1, scrape_data)
 
     scrape_data()
