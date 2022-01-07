@@ -37,7 +37,7 @@ def goodvibes(update: Update, context: CallbackContext) -> None:
     if len(positive_vibes)==0:
         update.message.reply_text("No positive vibes today!")
     else:
-        for i in range(min(3,len(positive_vibes))):
+        for i in range(min(5,len(positive_vibes))):
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
 
@@ -47,7 +47,7 @@ def badvibes(update: Update, context: CallbackContext) -> None:
     if len(negative_vibes)==0:
         update.message.reply_text("No negative vibes today!")
     else:
-        for i in range(min(3,len(negative_vibes))):
+        for i in range(min(5,len(negative_vibes))):
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
 
@@ -93,7 +93,7 @@ def main() -> None:
         page_name = 'TheStraitsTimes'
         df_list=[]
         for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
-                              pages=3, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False}):
+                              pages=1, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False, "posts_per_page": 50}):
             post_entry = post
             #fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
             #fb_post_df = fb_post_df.transpose()
@@ -142,7 +142,7 @@ def main() -> None:
             happiness_index = happiness_index / total_comments
         positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0].sort_values('scores', False)
         negative_vibes = df_st_relevant[df_st_relevant['scores'] < 0].sort_values('scores', False)
-        s.enter(3600, 1, scrape_data)
+        s.enter(10800, 1, scrape_data)
 
     scrape_data()
     s.run()
