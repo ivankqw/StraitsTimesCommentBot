@@ -116,13 +116,13 @@ def main() -> None:
         global curr 
         global last_scraped
         global next_scrape
-        curr = datetime.datetime.now()
+        curr = datetime.datetime.now() + datetime.timedelta(hours=8)
         last_scraped = pytz.timezone('Asia/Singapore').localize(curr).strftime('%Y-%m-%d at %H:%M:%S')
         next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime('%Y-%m-%d at %H:%M:%S')
         page_name = 'TheStraitsTimes'
         df_list=[]
         for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
-                              pages=4, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False}):
+                              pages=1, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False}):
             post_entry = post
             #fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
             #fb_post_df = fb_post_df.transpose()
