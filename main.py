@@ -24,7 +24,7 @@ happiness_index = 0
 curr = datetime.datetime.now()
 last_scraped = pytz.timezone('Asia/Singapore').localize(curr)
 next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3))
-
+#
 
 def help(update: Update, context: CallbackContext) -> None:
     "send a message when command help is issued"
