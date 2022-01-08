@@ -7,6 +7,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 from facebook_scraper import get_posts
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import datetime
+import pytz
 
 # Enable logging
 logging.basicConfig(
@@ -14,55 +15,88 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-# global variables
 
+# global variables
 df_st_relevant = pd.DataFrame()
 positive_vibes = pd.DataFrame()
 negative_vibes = pd.DataFrame()
-happiness_index = 0
+curr = datetime.datetime.now()
+last_scraped = pytz.timezone('Asia/Singapore').localize(curr).strftime('%Y-%m-%d at %H:%M:%S')
+next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime('%Y-%m-%d at %H:%M:%S')
+
 
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
+    #Asks users to choose which kind of news they want to see
     reply_keyboard = [["/goodvibes", "/badvibes"]]
-    update.message.reply_text('Hi, what kind of news do you want to read today?')
-    update.message.reply_text("Please choose a side",
+    update.message.reply_text('Hi, what kind of news do you want to read today?',
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
-
+#Sends news with positive sentiments in comments
 def goodvibes(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /goodvibes is issued."""
+    #If no news with overall positive sentiments
     if len(positive_vibes)==0:
-        update.message.reply_text("No positive vibes today!")
+        update.message.reply_text("No good vibes right now!")
     else:
-        for i in range(min(3,len(positive_vibes))):
+        update.message.reply_text("Here are your good vibes!")
+        #Send either the top 5 or all of the news with positive sentiments, whichever is lower.
+        for i in range(min(5,len(positive_vibes))):
             value = positive_vibes.iloc[i]
+            #returns URL of article
             update.message.reply_text(value.link)
+            
+    #Informs users when data was scraped and the next time it is scraped
+    t = "Data last updated at: " + str(last_scraped) + "\nNext updating time: " + str(next_scrape)
+    update.message.reply_text(t)
+    reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
+    update.message.reply_text("More Commands:",
+                          reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
-
+#Sends news with negative sentiments in comments
 def badvibes(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /badvibes is issued."""
+    #If no news with overall negative sentiments
     if len(negative_vibes)==0:
-        update.message.reply_text("No negative vibes today!")
+        update.message.reply_text("No bad vibes right now!")
     else:
-        for i in range(min(3,len(negative_vibes))):
+        update.message.reply_text("Here are your bad vibes!")
+        #Send either the top 5 or all of the news with negative sentiments, whichever is lower.
+        for i in range(min(5,len(negative_vibes))):
             value = negative_vibes.iloc[i]
+            #returns URL of article
             update.message.reply_text(value.link)
+            
+    #Informs users when data was scraped and the next time it is scraped
+    t = "Data last updated at: " + str(last_scraped) + "\nNext updating time: " + str(next_scrape)
+    update.message.reply_text(t)
+    reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
+    update.message.reply_text("More Commands:",
+                          reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
+#Help Command
+def help(update: Update, context: CallbackContext) -> None:
+    "send a message when command help is issued"
+    s = "Hey there! Welcome to ST Comments bot!\n\nWhat this is:\nBased on the Facebook comments of the Straits Times page, we will collate the top 5 good news and bad news for your viewing!\n\nDisclaimer:\nWhether a piece of news is good (positive) or bad (negative) is subject to the opinions of Facebook commenters.\n\nMore information:\nhttps://devpost.com/software/straits-times-comments-sentiment-bot"
+    update.message.reply_text(s)
+    reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
+    update.message.reply_text("More Commands:",
+                              reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
+#Pulls the raw comment text from the list of dictionaries
 def comments_to_list(x):
-    #list_of_dict = eval(x)
     result = []
     for d in x:
         result.append(d['comment_text'])
     return result
 
-
-def get_tweet_sentiment(tweet):
+#Uses VaderSentiment to obtain sentiment of comment
+def get_comment_sentiment(comment):
     analyzer = SentimentIntensityAnalyzer()
-    sentiment_dict = analyzer.polarity_scores(tweet)
+    sentiment_dict = analyzer.polarity_scores(comment)
     return sentiment_dict
 
 
@@ -78,43 +112,48 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("goodvibes", goodvibes))
     dispatcher.add_handler(CommandHandler("badvibes", badvibes))
+    dispatcher.add_handler(CommandHandler("help", help))
 
     # Start the Bot
     updater.start_polling()
 
-    # Start scheduled scraping
+    # Start scheduled scraping (every 3hrs)
     s = sched.scheduler(time.time, time.sleep)
 
     def scrape_data():
         global df_st_relevant
         global positive_vibes
         global negative_vibes
-        global happiness_index
+        global curr 
+        global last_scraped
+        global next_scrape
+        
+        curr = datetime.datetime.now() + datetime.timedelta(hours=8)
+        last_scraped = pytz.timezone('Asia/Singapore').localize(curr).strftime('%Y-%m-%d at %H:%M:%S')
+        next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime('%Y-%m-%d at %H:%M:%S')
+        
         page_name = 'TheStraitsTimes'
         df_list=[]
+        #Scraping from Facebook (~60 posts, ~past 24 hours)
         for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
-                              pages=3, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False}):
+                              pages=4, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False, "posts_per_page": 15}):
             post_entry = post
-            #fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
-            #fb_post_df = fb_post_df.transpose()
             df_list.append(post_entry)
 
         df_st_relevant = pd.DataFrame(df_list)
-
-        print(df_st_relevant.shape)
-
+           
+        #Extracting comment text
         df_st_relevant['comments_full'] = df_st_relevant['comments_full'].apply(comments_to_list)
+        
+        #Selecting Relevant Columns
         df_st_relevant = df_st_relevant[["post_id", "post_text", "post_url", "link", "comments", "comments_full"]]
+        
         # For sentiment column
         sentiment_list_all = []
 
         # For score column
         scores_list_all = []
-
-        # To get overall SG Happiness
-
-        total_comments = 0
-
+        
         # Iterate over all posts
         for comment_list in df_st_relevant.comments_full:
             # Reset values for each post
@@ -122,15 +161,16 @@ def main() -> None:
             sentiment_list_per_post = []
             # Iterate over all comments for each post
             for comments in comment_list:
-                value = get_tweet_sentiment(comments)
+                value = get_comment_sentiment(comments)
                 sentiment_list_per_post.append(value)
+                
+                #Add only the overall sentiment of the comment
                 sum += value['compound']
-                total_comments += 1
-                happiness_index += value['compound']
+                
             # Appends sentiments(for each post) to main list
             sentiment_list_all.append(sentiment_list_per_post)
 
-            # Appends total score for each post
+            # Appends total score for each post to main list
             if len(sentiment_list_per_post) == 0:
                 scores_list_all.append(0.0)
             else:
@@ -138,11 +178,20 @@ def main() -> None:
 
         df_st_relevant["sentiment analysis"] = sentiment_list_all
         df_st_relevant["scores"] = scores_list_all
-        if total_comments !=0:
-            happiness_index = happiness_index / total_comments
-        positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0].sort_values('scores', False)
-        negative_vibes = df_st_relevant[df_st_relevant['scores'] < 0].sort_values('scores', False)
-        s.enter(3600, 1, scrape_data)
+        
+        #Filter and sort positive and negative posts. Also removes posts which promotes ST Telegram (edge case)
+        
+        positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0]
+        positive_vibes = positive_vibes[positive_vibes['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]
+        if not positive_vibes.empty:
+            positive_vibes = positive_vibes.sort_values('scores', False)
+        negative_vibes = df_st_relevant[df_st_relevant['scores'] < 0]
+        negative_vibes = negative_vibes[negative_vibes['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]
+        if not negative_vibes.empty:
+            negative_vibes = negative_vibes.sort_values('scores', False)
+            
+        #Schedule the next scrape in 3hours
+        s.enter(10800, 1, scrape_data)
 
     scrape_data()
     s.run()
