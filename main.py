@@ -52,7 +52,8 @@ def goodvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(positive_vibes))):
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
-    update.message.reply_text("Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape))
+    t = "Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape)
+    update.message.reply_text(t)
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
     update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
@@ -67,7 +68,8 @@ def badvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(negative_vibes))):
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
-    update.message.reply_text("Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape))
+    t = "Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape)
+    update.message.reply_text(t)
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
     update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
@@ -120,7 +122,7 @@ def main() -> None:
         page_name = 'TheStraitsTimes'
         df_list=[]
         for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
-                              pages=4, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False, "posts_per_page": 15}):
+                              pages=4, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False}):
             post_entry = post
             #fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
             #fb_post_df = fb_post_df.transpose()
