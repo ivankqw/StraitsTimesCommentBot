@@ -7,6 +7,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 from facebook_scraper import get_posts
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import datetime
+import pytz
 
 # Enable logging
 logging.basicConfig(
@@ -20,6 +21,9 @@ df_st_relevant = pd.DataFrame()
 positive_vibes = pd.DataFrame()
 negative_vibes = pd.DataFrame()
 happiness_index = 0
+curr = datetime.datetime.now()
+last_scraped = pytz.timezone('Asia/Singapore').localize(curr)
+next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3))
 
 
 def help(update: Update, context: CallbackContext) -> None:
@@ -48,6 +52,7 @@ def goodvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(positive_vibes))):
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
+    update.message.reply_text("Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape))
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
     update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
@@ -62,6 +67,7 @@ def badvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(negative_vibes))):
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
+    update.message.reply_text("Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape))
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
     update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
@@ -74,9 +80,9 @@ def comments_to_list(x):
     return result
 
 
-def get_tweet_sentiment(tweet):
+def get_sentiment(x):
     analyzer = SentimentIntensityAnalyzer()
-    sentiment_dict = analyzer.polarity_scores(tweet)
+    sentiment_dict = analyzer.polarity_scores(x)
     return sentiment_dict
 
 
@@ -105,6 +111,12 @@ def main() -> None:
         global positive_vibes
         global negative_vibes
         global happiness_index
+        global curr 
+        global last_scraped
+        global next_scrape
+        curr = datetime.datetime.now()
+        last_scraped = pytz.timezone('Asia/Singapore').localize(curr)
+        next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3))
         page_name = 'TheStraitsTimes'
         df_list=[]
         for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
@@ -137,7 +149,7 @@ def main() -> None:
             sentiment_list_per_post = []
             # Iterate over all comments for each post
             for comments in comment_list:
-                value = get_tweet_sentiment(comments)
+                value = get_sentiment(comments)
                 sentiment_list_per_post.append(value)
                 sum += value['compound']
                 total_comments += 1
