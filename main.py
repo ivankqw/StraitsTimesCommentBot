@@ -22,12 +22,18 @@ negative_vibes = pd.DataFrame()
 happiness_index = 0
 
 
+def help(update: Update, context: CallbackContext) -> None:
+    "send a message when command help is issued"
+    s = "Hey there! Welcome to ST Comments bot!\nWhat this is: Based on the Facebook comments of the Straits Times page, we will collate the top 5 good news and bad news for your viewing!\nDisclaimer: Whether a piece of news is good (positive) or bad (negative) is subject to the opinions of Facebook commenters.\nMore information: https://devpost.com/software/straits-times-comments-sentiment-bot"
+    update.message.reply_text(s)
+
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     reply_keyboard = [["/goodvibes", "/badvibes"]]
     update.message.reply_text('Hi, what kind of news do you want to read today?')
+    update.message.reply_text("Welcome to ST comments bot. ")
     update.message.reply_text("Please choose a side",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
@@ -41,8 +47,8 @@ def goodvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(positive_vibes))):
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
-    reply_keyboard = [["/goodvibes", "/badvibes"]]
-    update.message.reply_text("Please choose a side",
+    reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
+    update.message.reply_text("More Commands",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 
@@ -55,10 +61,9 @@ def badvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(negative_vibes))):
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
-    reply_keyboard = [["/goodvibes", "/badvibes"]]
-    update.message.reply_text("Please choose a side",
+    reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
+    update.message.reply_text("More Commands",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-
 
 def comments_to_list(x):
     #list_of_dict = eval(x)
@@ -86,6 +91,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("goodvibes", goodvibes))
     dispatcher.add_handler(CommandHandler("badvibes", badvibes))
+    dispatcher.add_handler(CommandHandler("help", help))
 
     # Start the Bot
     updater.start_polling()
