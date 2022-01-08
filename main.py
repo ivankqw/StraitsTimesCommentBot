@@ -22,8 +22,8 @@ positive_vibes = pd.DataFrame()
 negative_vibes = pd.DataFrame()
 happiness_index = 0
 curr = datetime.datetime.now()
-last_scraped = pytz.timezone('Asia/Singapore').localize(curr)
-next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3))
+last_scraped = pytz.timezone('Asia/Singapore').localize(curr).strftime('%Y-%m-%d at %H:%M:%S')
+next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime('%Y-%m-%d at %H:%M:%S')
 #
 #
 def help(update: Update, context: CallbackContext) -> None:
@@ -52,7 +52,7 @@ def goodvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(positive_vibes))):
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
-    t = "Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape)
+    t = "Data last updated at: " + str(last_scraped) + "\nNext updating time: " + str(next_scrape)
     update.message.reply_text(t)
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
     update.message.reply_text("More Commands:",
@@ -68,7 +68,7 @@ def badvibes(update: Update, context: CallbackContext) -> None:
         for i in range(min(5,len(negative_vibes))):
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
-    t = "Data last updated at: " + str(last_scraped), "\nNext updating time: " + str(next_scrape)
+    t = "Data last updated at: " + str(last_scraped) + "\nNext updating time: " + str(next_scrape)
     update.message.reply_text(t)
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
     update.message.reply_text("More Commands:",
@@ -117,8 +117,8 @@ def main() -> None:
         global last_scraped
         global next_scrape
         curr = datetime.datetime.now()
-        last_scraped = pytz.timezone('Asia/Singapore').localize(curr)
-        next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3))
+        last_scraped = pytz.timezone('Asia/Singapore').localize(curr).strftime('%Y-%m-%d at %H:%M:%S')
+        next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime('%Y-%m-%d at %H:%M:%S')
         page_name = 'TheStraitsTimes'
         df_list=[]
         for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
