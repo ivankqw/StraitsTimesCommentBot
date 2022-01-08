@@ -24,8 +24,11 @@ happiness_index = 0
 
 def help(update: Update, context: CallbackContext) -> None:
     "send a message when command help is issued"
-    s = "Hey there! Welcome to ST Comments bot!\nWhat this is: Based on the Facebook comments of the Straits Times page, we will collate the top 5 good news and bad news for your viewing!\nDisclaimer: Whether a piece of news is good (positive) or bad (negative) is subject to the opinions of Facebook commenters.\nMore information: https://devpost.com/software/straits-times-comments-sentiment-bot"
+    s = "Hey there! Welcome to ST Comments bot!\n\nWhat this is:\nBased on the Facebook comments of the Straits Times page, we will collate the top 5 good news and bad news for your viewing!\n\nDisclaimer:\nWhether a piece of news is good (positive) or bad (negative) is subject to the opinions of Facebook commenters.\n\nMore information:\nhttps://devpost.com/software/straits-times-comments-sentiment-bot"
     update.message.reply_text(s)
+    reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
+    update.message.reply_text("More Commands:",
+                              reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -48,7 +51,7 @@ def goodvibes(update: Update, context: CallbackContext) -> None:
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
-    update.message.reply_text("More Commands",
+    update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 
@@ -62,7 +65,7 @@ def badvibes(update: Update, context: CallbackContext) -> None:
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
     reply_keyboard = [["/goodvibes", "/badvibes", "/help"]]
-    update.message.reply_text("More Commands",
+    update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 def comments_to_list(x):
