@@ -35,21 +35,29 @@ def start(update: Update, context: CallbackContext) -> None:
 def goodvibes(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /goodvibes is issued."""
     if len(positive_vibes)==0:
-        update.message.reply_text("No positive vibes today!")
+        update.message.reply_text("No good vibes right now!")
     else:
+        update.message.reply_text("Here are your good vibes!")
         for i in range(min(5,len(positive_vibes))):
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
+    reply_keyboard = [["/goodvibes", "/badvibes"]]
+    update.message.reply_text("Please choose a side",
+                              reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 
 def badvibes(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /badvibes is issued."""
     if len(negative_vibes)==0:
-        update.message.reply_text("No negative vibes today!")
+        update.message.reply_text("No bad vibes right now!")
     else:
+        update.message.reply_text("Here are your bad vibes!")
         for i in range(min(5,len(negative_vibes))):
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
+    reply_keyboard = [["/goodvibes", "/badvibes"]]
+    update.message.reply_text("Please choose a side",
+                              reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 
 def comments_to_list(x):
@@ -97,7 +105,6 @@ def main() -> None:
             post_entry = post
             #fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
             #fb_post_df = fb_post_df.transpose()
-            #
             df_list.append(post_entry)
 
         df_st_relevant = pd.DataFrame(df_list)
