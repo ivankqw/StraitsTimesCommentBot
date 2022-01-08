@@ -25,7 +25,7 @@ curr = datetime.datetime.now()
 last_scraped = pytz.timezone('Asia/Singapore').localize(curr)
 next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3))
 #
-
+#
 def help(update: Update, context: CallbackContext) -> None:
     "send a message when command help is issued"
     s = "Hey there! Welcome to ST Comments bot!\n\nWhat this is:\nBased on the Facebook comments of the Straits Times page, we will collate the top 5 good news and bad news for your viewing!\n\nDisclaimer:\nWhether a piece of news is good (positive) or bad (negative) is subject to the opinions of Facebook commenters.\n\nMore information:\nhttps://devpost.com/software/straits-times-comments-sentiment-bot"
