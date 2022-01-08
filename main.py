@@ -35,9 +35,7 @@ def help(update: Update, context: CallbackContext) -> None:
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     reply_keyboard = [["/goodvibes", "/badvibes"]]
-    update.message.reply_text('Hi, what kind of news do you want to read today?')
-    update.message.reply_text("Welcome to ST comments bot. ")
-    update.message.reply_text("Please choose a side",
+    update.message.reply_text("Hi, what kind of news do you want to read today?",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 
