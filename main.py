@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> f24139b (Initial commit)
 import logging
 import sched
 import time
@@ -12,13 +8,10 @@ from facebook_scraper import get_posts
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import datetime
 import pytz
-<<<<<<< HEAD
 from dotenv import load_dotenv
 import os
 
 load_dotenv()  # take environment variables from .env.
-=======
->>>>>>> f24139b (Initial commit)
 
 # Enable logging
 logging.basicConfig(
@@ -34,14 +27,10 @@ negative_vibes = pd.DataFrame()
 happiness_index = 0
 curr = datetime.datetime.now()
 last_scraped = pytz.timezone('Asia/Singapore').localize(curr).strftime('%Y-%m-%d at %H:%M:%S')
-<<<<<<< HEAD
 next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime(
     '%Y-%m-%d at %H:%M:%S')
 
 
-=======
-next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime('%Y-%m-%d at %H:%M:%S')
->>>>>>> f24139b (Initial commit)
 #
 #
 def help(update: Update, context: CallbackContext) -> None:
@@ -52,10 +41,7 @@ def help(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
-<<<<<<< HEAD
 
-=======
->>>>>>> f24139b (Initial commit)
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 def start(update: Update, context: CallbackContext) -> None:
@@ -67,19 +53,11 @@ def start(update: Update, context: CallbackContext) -> None:
 
 def goodvibes(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /goodvibes is issued."""
-<<<<<<< HEAD
     if len(positive_vibes) == 0:
         update.message.reply_text("No good vibes right now!")
     else:
         update.message.reply_text("Here are your good vibes!")
         for i in range(min(5, len(positive_vibes))):
-=======
-    if len(positive_vibes)==0:
-        update.message.reply_text("No good vibes right now!")
-    else:
-        update.message.reply_text("Here are your good vibes!")
-        for i in range(min(5,len(positive_vibes))):
->>>>>>> f24139b (Initial commit)
             value = positive_vibes.iloc[i]
             update.message.reply_text(value.link)
     t = "Data last updated at: " + str(last_scraped) + "\nNext updating time: " + str(next_scrape)
@@ -91,19 +69,11 @@ def goodvibes(update: Update, context: CallbackContext) -> None:
 
 def badvibes(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /badvibes is issued."""
-<<<<<<< HEAD
     if len(negative_vibes) == 0:
         update.message.reply_text("No bad vibes right now!")
     else:
         update.message.reply_text("Here are your bad vibes!")
         for i in range(min(5, len(negative_vibes))):
-=======
-    if len(negative_vibes)==0:
-        update.message.reply_text("No bad vibes right now!")
-    else:
-        update.message.reply_text("Here are your bad vibes!")
-        for i in range(min(5,len(negative_vibes))):
->>>>>>> f24139b (Initial commit)
             value = negative_vibes.iloc[i]
             update.message.reply_text(value.link)
     t = "Data last updated at: " + str(last_scraped) + "\nNext updating time: " + str(next_scrape)
@@ -112,14 +82,9 @@ def badvibes(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("More Commands:",
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
-<<<<<<< HEAD
 
 def comments_to_list(x):
     # list_of_dict = eval(x)
-=======
-def comments_to_list(x):
-    #list_of_dict = eval(x)
->>>>>>> f24139b (Initial commit)
     result = []
     for d in x:
         result.append(d['comment_text'])
@@ -135,17 +100,11 @@ def get_sentiment(x):
 def main() -> None:
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
-<<<<<<< HEAD
     # with open('token.txt') as f:
     #     token = f.read()
     #     f.close()
 
     token = os.getenv("TOKEN")
-=======
-    with open('token.txt') as f:
-        token = f.read()
-        f.close()
->>>>>>> f24139b (Initial commit)
     updater = Updater(token)
 
     # Get the dispatcher to register handlers
@@ -168,16 +127,11 @@ def main() -> None:
         global positive_vibes
         global negative_vibes
         global happiness_index
-<<<<<<< HEAD
         global curr
-=======
-        global curr 
->>>>>>> f24139b (Initial commit)
         global last_scraped
         global next_scrape
         curr = datetime.datetime.now() + datetime.timedelta(hours=8)
         last_scraped = pytz.timezone('Asia/Singapore').localize(curr).strftime('%Y-%m-%d at %H:%M:%S')
-<<<<<<< HEAD
         next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime(
             '%Y-%m-%d at %H:%M:%S')
         page_name = 'TheStraitsTimes'
@@ -188,16 +142,6 @@ def main() -> None:
             post_entry = post
             # fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
             # fb_post_df = fb_post_df.transpose()
-=======
-        next_scrape = pytz.timezone('Asia/Singapore').localize(curr + datetime.timedelta(hours=3)).strftime('%Y-%m-%d at %H:%M:%S')
-        page_name = 'TheStraitsTimes'
-        df_list=[]
-        for post in get_posts(page_name, cookies="cookie.txt", extra_info=False,
-                              pages=4, options={"comments": True,"allow_extra_requests": True, "progress": True, "reactors": False, "posts_per_page": 15}):
-            post_entry = post
-            #fb_post_df = pd.DataFrame.from_dict(post_entry, orient='index')
-            #fb_post_df = fb_post_df.transpose()
->>>>>>> f24139b (Initial commit)
             df_list.append(post_entry)
 
         df_st_relevant = pd.DataFrame(df_list)
@@ -239,11 +183,7 @@ def main() -> None:
 
         df_st_relevant["sentiment analysis"] = sentiment_list_all
         df_st_relevant["scores"] = scores_list_all
-<<<<<<< HEAD
         if total_comments != 0:
-=======
-        if total_comments !=0:
->>>>>>> f24139b (Initial commit)
             happiness_index = happiness_index / total_comments
         positive_vibes = df_st_relevant[df_st_relevant['scores'] > 0]
         positive_vibes = positive_vibes[positive_vibes['link'].apply(lambda x: True if x.find("t.me") == -1 else False)]

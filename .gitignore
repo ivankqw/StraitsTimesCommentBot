@@ -1,9 +1,4 @@
-cookie.txt
 Procfile
 archive
-<<<<<<< HEAD
 token.txt
 .env
-=======
-token.txt
->>>>>>> f24139b (Initial commit)
